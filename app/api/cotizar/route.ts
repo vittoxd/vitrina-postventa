@@ -41,14 +41,22 @@ export async function POST(req: NextRequest) {
     console.error("Error enviando email al dueño:", e);
   }
 
-  // WhatsApp al dueño (no bloqueante)
-  const tituloServicioWsp = servicios.find((s) => s.slug === body.servicio)?.titulo ?? body.servicio;
-  whatsappNuevaCotizacion({
-    nombre: body.nombre,
-    servicio: tituloServicioWsp,
-    telefono: body.telefono,
-    comuna: body.comuna,
-  });
+  // WhatsApp al dueño. Va con await a propósito: en funciones serverless
+  // de Vercel, una promesa sin esperar puede quedar cortada a mitad de
+  // camino en cuanto se manda la respuesta (se confirmó así: el email,
+  // que sí tiene await, llegaba; este fetch sin await nunca llegaba a
+  // completarse). El costo es una llamada HTTP más antes de responder.
+  try {
+    const tituloServicioWsp = servicios.find((s) => s.slug === body.servicio)?.titulo ?? body.servicio;
+    await whatsappNuevaCotizacion({
+      nombre: body.nombre,
+      servicio: tituloServicioWsp,
+      telefono: body.telefono,
+      comuna: body.comuna,
+    });
+  } catch (e) {
+    console.error("Error enviando WhatsApp al dueño:", e);
+  }
 
   return NextResponse.json({ ok: true });
 }
