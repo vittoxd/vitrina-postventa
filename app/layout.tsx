@@ -26,12 +26,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/servicios" className="hover:text-amber-600">Servicios</Link>
               <Link href="/proyectos" className="hidden sm:block hover:text-amber-600">Proyectos</Link>
               <Link href="/postventa" className="hidden sm:block hover:text-amber-600">Post-venta</Link>
-              <Link
-                href="/admin"
-                className="rounded-lg bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-700"
-              >
-                Admin
-              </Link>
             </div>
           </nav>
         </header>
