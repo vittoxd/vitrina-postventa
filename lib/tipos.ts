@@ -1,38 +1,70 @@
-// ─────────────────────────────────────────────────────────────
-// Tipos del dominio (demo). Sin base de datos: datos de ejemplo.
-// ─────────────────────────────────────────────────────────────
+// Tipos del dominio — IncluWork
 
-export type Categoria = "Ventanas" | "Construcción" | "Remodelación";
+export type ServicioSlug =
+  | "ventanas-pvc"
+  | "muebles"
+  | "puertas-muebles"
+  | "aire-acondicionado"
+  | "gasfiteria"
+  | "acabados-obras"
+  | "inspeccion-tecnica";
+
+export type Servicio = {
+  slug: ServicioSlug;
+  titulo: string;
+  desc: string;
+  icono: string;
+  // Campos extra que aparecen en el formulario de cotización de este servicio
+  camposExtra?: CampoExtra[];
+};
+
+export type CampoExtra = {
+  name: string;
+  label: string;
+  tipo: "text" | "select" | "number";
+  opciones?: string[]; // solo si tipo === "select"
+  placeholder?: string;
+};
 
 export type Proyecto = {
   id: string;
   titulo: string;
-  categoria: Categoria;
+  categoria: ServicioSlug;
   descripcion: string;
   ubicacion: string;
-  // color de fondo para la "foto" simulada (placeholder visual sin imágenes reales)
-  color: string;
+  imagen_url?: string | null;
+  destacado: boolean;
+  created_at: string;
 };
 
-export type EstadoSolicitud = "Pendiente" | "Agendado" | "Completado";
+export type TipoPostventa = "satisfaccion" | "consulta" | "reclamo" | "garantia";
 
-export type Solicitud = {
+export type Postventa = {
   id: string;
-  cliente: string;
-  telefono: string;
-  tipo: Categoria;
-  descripcion: string;
-  fechaSolicitud: string; // ISO — define la prioridad (más antigua = más prioritaria)
-  estado: EstadoSolicitud;
-  tecnicoAsignado?: string; // nombre del personal
-  fechaVisita?: string; // ISO
+  cotizacion_id: string;
+  calificacion: number;
+  tipo: TipoPostventa;
+  mensaje: string;
+  created_at: string;
+  // joined
+  cotizacion?: Cotizacion;
 };
 
-export type Tecnico = {
+// Estado de una cotización recibida
+export type EstadoCotizacion = "Pendiente" | "Contactado" | "Cerrado";
+
+export type Cotizacion = {
   id: string;
+  servicio: ServicioSlug;
   nombre: string;
-  especialidad: Categoria;
-  disponible: boolean;
+  telefono: string;
+  email: string;
+  comuna: string;
+  direccion: string;
+  descripcion: string;
+  campos_extra?: Record<string, string>;
+  estado: EstadoCotizacion;
+  fecha_visita?: string;
+  notas_visita?: string;
+  created_at: string;
 };
-
-export const CATEGORIAS: Categoria[] = ["Ventanas", "Construcción", "Remodelación"];

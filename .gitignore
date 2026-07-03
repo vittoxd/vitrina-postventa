@@ -29,6 +29,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+dev.log
+
+# config local del launcher de Claude Code (específica de esta máquina)
+.claude/
 
 # env files (can opt-in for committing if needed)
 .env*
