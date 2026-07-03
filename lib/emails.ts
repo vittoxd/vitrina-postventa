@@ -1,12 +1,13 @@
 import { Resend } from "resend";
-import { empresa } from "./datos";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // WhatsApp vía CallMeBot — desactivado a propósito por ahora (falta
-// CALLMEBOT_APIKEY). Para activarlo: escribe "I allow callmebot to
-// send me messages" al +34 644 81 66 63 desde el WhatsApp del negocio;
-// te responden con la apikey, y la agregas a .env.local / Vercel.
+// CALLMEBOT_APIKEY). Para activarlo: agrega el +34 644 86 70 49 a tus
+// contactos y escríbele por WhatsApp "I allow callmebot to send me
+// messages"; responden con la apikey (puede tardar hasta 2 min, si no
+// llega hay que esperar 24h y reintentar). Verificado en callmebot.com,
+// el número anterior en este comentario estaba desactualizado.
 const CALLMEBOT_PHONE = process.env.CALLMEBOT_PHONE ?? "";
 const CALLMEBOT_APIKEY = process.env.CALLMEBOT_APIKEY ?? "";
 
@@ -28,7 +29,13 @@ export async function whatsappNuevaCotizacion(data: {
     console.error("Error enviando WhatsApp:", e);
   }
 }
-const OWNER_EMAIL = empresa.email;
+// Mientras se use el dominio de pruebas de Resend (onboarding@resend.dev),
+// Resend SOLO deja enviar a la dirección exacta de la cuenta registrada
+// (probado: mandar a empresa.email dio 403 "Testing domain restriction").
+// Por eso el destino es este correo y no empresa.email (el de cara al
+// público) — cuando se verifique un dominio propio, se puede volver a
+// apuntar a empresa.email sin esta limitación.
+const OWNER_EMAIL = "vitorioxde@gmail.com";
 // ⚠️ Sigue usando el dominio compartido de Resend (onboarding@resend.dev).
 // Funciona, pero entrega peor (más probable que caiga en spam) que un
 // dominio propio verificado. Para pasar a "IncluWork <no-responder@incluwork.cl>"
