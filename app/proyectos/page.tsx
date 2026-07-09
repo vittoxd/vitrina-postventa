@@ -5,12 +5,15 @@ import { servicios } from "@/lib/datos";
 import { colorDeProyecto } from "@/lib/colores";
 import { supabase } from "@/lib/supabase";
 import { Proyecto, ServicioSlug } from "@/lib/tipos";
+import GaleriaLightbox, { fotosDe } from "@/components/GaleriaLightbox";
 
 type FiltroServicio = ServicioSlug | "Todos";
 
 export default function ProyectosPage() {
   const [filtro, setFiltro] = useState<FiltroServicio>("Todos");
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
+  // Proyecto cuya galería está abierta (null = cerrada).
+  const [galeria, setGaleria] = useState<Proyecto | null>(null);
 
   useEffect(() => {
     supabase
@@ -20,6 +23,11 @@ export default function ProyectosPage() {
       .order("created_at", { ascending: false })
       .then(({ data }) => setProyectos((data as Proyecto[]) ?? []));
   }, []);
+
+  function abrirGaleria(p: Proyecto) {
+    if (fotosDe(p).length === 0) return;
+    setGaleria(p);
+  }
 
   const visibles: Proyecto[] =
     filtro === "Todos" ? proyectos : proyectos.filter((p) => p.categoria === filtro);
@@ -44,10 +52,24 @@ export default function ProyectosPage() {
 
       {/* Grilla */}
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {visibles.map((p) => (
+        {visibles.map((p) => {
+          const fotos = fotosDe(p);
+          const tieneFotos = fotos.length > 0;
+          return (
           <div key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            {p.imagen_url ? (
-              <img src={p.imagen_url} alt={p.titulo} className="h-44 w-full object-cover" />
+            {tieneFotos ? (
+              <button type="button" onClick={() => abrirGaleria(p)}
+                className="group relative block h-44 w-full cursor-pointer overflow-hidden">
+                <img src={fotos[0]} alt={p.titulo} className="h-44 w-full object-cover transition group-hover:scale-105" />
+                <span className="absolute inset-0 flex items-center justify-center bg-black/0 text-white opacity-0 transition group-hover:bg-black/30 group-hover:opacity-100">
+                  <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-800">🔍 Ver fotos</span>
+                </span>
+                {fotos.length > 1 && (
+                  <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
+                    🖼️ {fotos.length}
+                  </span>
+                )}
+              </button>
             ) : (
               <div className="flex h-44 items-center justify-center text-white" style={{ background: colorDeProyecto(p.categoria) }}>
                 <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-medium">
@@ -61,8 +83,11 @@ export default function ProyectosPage() {
               <p className="mt-2 text-xs text-slate-400">📍 {p.ubicacion}</p>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
+
+      <GaleriaLightbox proyecto={galeria} onClose={() => setGaleria(null)} />
 
       {visibles.length === 0 && (
         <p className="mt-10 text-center text-slate-500">No hay proyectos en esta categoría aún.</p>

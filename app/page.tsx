@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { empresa, servicios } from "@/lib/datos";
-import { colorDeProyecto } from "@/lib/colores";
 import { supabasePublic } from "@/lib/supabase-public";
 import { Proyecto } from "@/lib/tipos";
+import DestacadosGrid from "@/components/DestacadosGrid";
 
 export default async function Home() {
   const { data } = await supabasePublic
@@ -73,29 +73,7 @@ export default async function Home() {
               Ver todos →
             </Link>
           </div>
-          <div className="grid gap-6 sm:grid-cols-3">
-            {destacados.length === 0 && (
-              <p className="col-span-3 text-center text-sm text-slate-500">Todavía no hay proyectos publicados.</p>
-            )}
-            {destacados.map((p) => (
-              <div key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                {p.imagen_url ? (
-                  <img src={p.imagen_url} alt={p.titulo} className="h-40 w-full object-cover" />
-                ) : (
-                  <div className="flex h-40 items-center justify-center text-white" style={{ background: colorDeProyecto(p.categoria) }}>
-                    <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-medium">
-                      {servicios.find((s) => s.slug === p.categoria)?.titulo ?? p.categoria}
-                    </span>
-                  </div>
-                )}
-                <div className="p-4">
-                  <h3 className="font-semibold text-slate-900 text-sm">{p.titulo}</h3>
-                  <p className="mt-1 text-xs text-slate-600">{p.descripcion}</p>
-                  <p className="mt-2 text-xs text-slate-400">📍 {p.ubicacion}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <DestacadosGrid destacados={destacados} />
         </div>
       </section>
 
