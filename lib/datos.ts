@@ -1,7 +1,8 @@
 import { Servicio } from "./tipos";
 
 export const empresa = {
-  nombre: "IncluWork",
+  nombre: "IncluWork",                 // nombre comercial (con el que los conocen)
+  nombreLegal: "DEIPA",                // razón social — ajustar a la exacta (ej: "DEIPA SpA")
   rubro: "Construcción · Remodelación · Mantención",
   eslogan: "Soluciones integrales para tu hogar y empresa, con calidad y garantía real.",
   telefono: "+56 9 8787 3015",

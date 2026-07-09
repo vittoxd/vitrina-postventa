@@ -8,14 +8,36 @@ import { empresa } from "@/lib/datos";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: `${empresa.nombre} — ${empresa.rubro}`,
+  // Título con ambos nombres: así aparece tanto si buscan "IncluWork" como "DEIPA".
+  title: `${empresa.nombre} (${empresa.nombreLegal}) — ${empresa.rubro}`,
+  description: `${empresa.eslogan} ${empresa.nombre} es el nombre comercial de ${empresa.nombreLegal}.`,
+  keywords: [empresa.nombre, empresa.nombreLegal, "IncluWork", "DEIPA", "construcción", "remodelación", "mantención", "ventanas PVC"],
+  openGraph: {
+    title: `${empresa.nombre} (${empresa.nombreLegal})`,
+    description: empresa.eslogan,
+    type: "website",
+  },
+};
+
+// Datos estructurados: le dicen a Google que IncluWork y DEIPA son la MISMA
+// empresa (name + alternateName + legalName). Es lo que permite que al buscar
+// una aparezca la otra.
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "GeneralContractor",
+  name: empresa.nombre,
+  alternateName: empresa.nombreLegal,
+  legalName: empresa.nombreLegal,
   description: empresa.eslogan,
+  telephone: empresa.telefono,
+  areaServed: "CL",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-white text-slate-800">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
           <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
             <Link href="/" className="flex items-center">
@@ -37,6 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div>
               <p className="font-extrabold text-white text-xl">IncluWork</p>
               <p className="text-sm mt-1 text-slate-400">{empresa.rubro}</p>
+              <p className="text-xs mt-1 text-slate-500">Nombre comercial de {empresa.nombreLegal}</p>
             </div>
             <div className="text-sm space-y-1">
               <p>📍 {empresa.ciudad}</p>
