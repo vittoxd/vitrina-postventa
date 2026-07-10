@@ -10,7 +10,7 @@ import { Cotizacion, EstadoCotizacion, Material, Postventa, Proyecto, ServicioSl
 
 const proyectoVacio = {
   titulo: "",
-  categoria: servicios[0].slug as ServicioSlug,
+  categoria: "",              // texto libre; quien publica escribe la categoría
   descripcion: "",
   ubicacion: "",
   imagenes: [] as string[],   // URLs públicas en Supabase Storage (la 1ª = portada)
@@ -564,6 +564,9 @@ export default function AdminPage() {
     : cotizaciones.filter((c) => c.origen !== "admin");
   const visibles = filtro === "Todos" ? baseLista : baseLista.filter((c) => c.estado === filtro);
   const materialesBajoStock = materiales.filter((m) => m.stock <= m.stock_minimo).length;
+  // Categorías ya escritas en otros proyectos, para sugerirlas al publicar
+  // (evita que se escriban variantes distintas de lo mismo).
+  const categoriasUsadas = [...new Set(proyectos.map((p) => p.categoria).filter(Boolean))].sort();
   const stats = {
     total: baseLista.length,
     pendientes: baseLista.filter((c) => c.estado === "Pendiente").length,
@@ -950,12 +953,17 @@ export default function AdminPage() {
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Servicio</label>
-              <select value={formProyecto.categoria}
-                onChange={(e) => setFormProyecto({ ...formProyecto, categoria: e.target.value as ServicioSlug })}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none">
-                {servicios.map((s) => <option key={s.slug} value={s.slug}>{s.titulo}</option>)}
-              </select>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Categoría</label>
+              <input required value={formProyecto.categoria}
+                onChange={(e) => setFormProyecto({ ...formProyecto, categoria: e.target.value })}
+                list="categorias-usadas"
+                placeholder="Ej: Cocinas, Fachadas, Baños…"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none" />
+              {/* Sugerencias con las categorías ya usadas (para reutilizarlas y no crear variantes). */}
+              <datalist id="categorias-usadas">
+                {categoriasUsadas.map((c) => <option key={c} value={c} />)}
+              </datalist>
+              <p className="mt-1 text-xs text-slate-400">Escríbela libremente. La web agrupa los proyectos por esta categoría.</p>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Descripción</label>
@@ -1051,7 +1059,7 @@ export default function AdminPage() {
                       <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Destacado</span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">{tituloServicio(p.categoria)} · 📍 {p.ubicacion}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{p.categoria} · 📍 {p.ubicacion}</p>
                   <p className="text-sm text-slate-600 mt-1 line-clamp-2">{p.descripcion}</p>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2">

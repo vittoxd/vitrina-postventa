@@ -29,7 +29,7 @@ export type CampoExtra = {
 export type Proyecto = {
   id: string;
   titulo: string;
-  categoria: ServicioSlug;
+  categoria: string;          // texto libre que escribe quien publica (ej: "Cocinas")
   descripcion: string;
   ubicacion: string;
   imagen_url?: string | null;   // portada = primera de `imagenes` (compat)

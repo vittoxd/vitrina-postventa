@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { servicios } from "@/lib/datos";
 import { colorDeProyecto } from "@/lib/colores";
 import { Proyecto } from "@/lib/tipos";
 import GaleriaLightbox, { fotosDe } from "@/components/GaleriaLightbox";
@@ -35,7 +34,7 @@ export default function DestacadosGrid({ destacados }: { destacados: Proyecto[] 
               ) : (
                 <div className="flex h-40 items-center justify-center text-white" style={{ background: colorDeProyecto(p.categoria) }}>
                   <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-medium">
-                    {servicios.find((s) => s.slug === p.categoria)?.titulo ?? p.categoria}
+                    {p.categoria}
                   </span>
                 </div>
               )}

@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { servicios } from "@/lib/datos";
 import { colorDeProyecto } from "@/lib/colores";
 import { supabase } from "@/lib/supabase";
-import { Proyecto, ServicioSlug } from "@/lib/tipos";
+import { Proyecto } from "@/lib/tipos";
 import GaleriaLightbox, { fotosDe } from "@/components/GaleriaLightbox";
 
-type FiltroServicio = ServicioSlug | "Todos";
-
 export default function ProyectosPage() {
-  const [filtro, setFiltro] = useState<FiltroServicio>("Todos");
+  const [filtro, setFiltro] = useState<string>("Todos");
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   // Proyecto cuya galería está abierta (null = cerrada).
   const [galeria, setGaleria] = useState<Proyecto | null>(null);
@@ -29,6 +26,9 @@ export default function ProyectosPage() {
     setGaleria(p);
   }
 
+  // Filtros dinámicos: las categorías que realmente escribieron en los proyectos.
+  const categorias = [...new Set(proyectos.map((p) => p.categoria).filter(Boolean))].sort();
+
   const visibles: Proyecto[] =
     filtro === "Todos" ? proyectos : proyectos.filter((p) => p.categoria === filtro);
 
@@ -37,18 +37,15 @@ export default function ProyectosPage() {
       <h1 className="text-3xl font-extrabold text-slate-900">Trabajos realizados</h1>
       <p className="mt-2 text-slate-600">Explora algunos de los proyectos que hemos completado.</p>
 
-      {/* Filtros por servicio */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        <FiltroBtn label="Todos" activo={filtro === "Todos"} onClick={() => setFiltro("Todos")} />
-        {servicios.map((s) => (
-          <FiltroBtn
-            key={s.slug}
-            label={s.titulo}
-            activo={filtro === s.slug}
-            onClick={() => setFiltro(s.slug)}
-          />
-        ))}
-      </div>
+      {/* Filtros por categoría (generados de lo que se escribió en los proyectos) */}
+      {categorias.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
+          <FiltroBtn label="Todos" activo={filtro === "Todos"} onClick={() => setFiltro("Todos")} />
+          {categorias.map((c) => (
+            <FiltroBtn key={c} label={c} activo={filtro === c} onClick={() => setFiltro(c)} />
+          ))}
+        </div>
+      )}
 
       {/* Grilla */}
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -73,7 +70,7 @@ export default function ProyectosPage() {
             ) : (
               <div className="flex h-44 items-center justify-center text-white" style={{ background: colorDeProyecto(p.categoria) }}>
                 <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-medium">
-                  {servicios.find((s) => s.slug === p.categoria)?.titulo ?? p.categoria}
+                  {p.categoria}
                 </span>
               </div>
             )}
